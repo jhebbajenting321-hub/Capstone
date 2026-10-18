@@ -102,3 +102,363 @@
     <script src="script.js"></script>
 </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CityAlert - Community Hazard Reporting</title>
+  <!-- Tailwind CSS CDN for easy styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 min-h-screen flex flex-col">
+
+  <!-- TOP NAVBAR -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <i data-lucide="shield-alert" class="w-7 h-7 text-blue-600"></i>
+        <span class="text-xl font-bold text-slate-900 tracking-tight">CityAlert</span>
+      </div>
+
+      <nav class="flex items-center space-x-6 text-sm font-medium">
+        <!-- Navigation Links -->
+        <a href="#home" class="text-blue-600 hover:text-blue-700">Home</a>
+        <a href="#dashboard" class="text-slate-600 hover:text-slate-900">Dashboard</a>
+        <a href="#report-form" class="text-slate-600 hover:text-slate-900">Report Hazard</a>
+
+        <!-- ADMIN NOTIFICATION BELL (Only active/visible for Admin) -->
+        <div id="admin-nav-item" class="relative hidden">
+          <button id="notif-btn" onclick="toggleNotifications()" class="relative p-2 text-slate-600 hover:text-blue-600 focus:outline-none">
+            <i data-lucide="bell" class="w-6 h-6"></i>
+            <!-- Unread Badge -->
+            <span id="notif-badge" class="hidden absolute top-1 right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-white">
+              0
+            </span>
+          </button>
+
+          <!-- Notification Dropdown Menu -->
+          <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-slate-200 z-50 overflow-hidden">
+            <div class="p-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+              <span class="font-semibold text-xs text-slate-700 uppercase tracking-wider">Notifications</span>
+              <button onclick="clearNotifications()" class="text-xs text-blue-600 hover:underline">Clear all</button>
+            </div>
+            <div id="notif-list" class="max-h-64 overflow-y-auto divide-y divide-slate-100">
+              <p class="p-4 text-xs text-slate-400 text-center">No new notifications</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ROLE SWITCHER TOGGLE (Simulates User vs Admin Mode) -->
+        <div class="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200">
+          <button id="role-user-btn" onclick="switchRole('user')" class="px-3 py-1 rounded-md text-xs font-semibold bg-white text-blue-600 shadow-sm transition">
+            Public View
+          </button>
+          <button id="role-admin-btn" onclick="switchRole('admin')" class="px-3 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition flex items-center gap-1">
+            <i data-lucide="user-check" class="w-3.5 h-3.5"></i> Admin Account
+          </button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="max-w-6xl mx-auto px-4 py-8 flex-1 w-full space-y-8">
+
+    <!-- HERO BANNER -->
+    <section id="home" class="bg-white rounded-xl p-8 border border-slate-200 shadow-sm">
+      <h1 class="text-3xl font-extrabold text-slate-900 mb-2">
+        Community Hazard Reporting and City Safety Monitoring Portal
+      </h1>
+      <p class="text-slate-600 text-sm max-w-2xl mb-6">
+        Help keep our community safe by reporting hazards and dangerous situations in your area.
+      </p>
+      <a href="#report-form" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-lg shadow-sm text-sm transition">
+        Report a Hazard
+      </a>
+    </section>
+
+    <!-- SAFETY DASHBOARD STATS -->
+    <section id="dashboard">
+      <h2 class="text-lg font-bold text-slate-900 mb-4">Safety Dashboard</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Total Reports</p>
+          <p id="stat-total" class="text-4xl font-extrabold text-slate-900">1</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Pending Reports</p>
+          <p id="stat-pending" class="text-4xl font-extrabold text-slate-900">0</p>
+        </div>
+        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+          <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Resolved Reports</p>
+          <p id="stat-resolved" class="text-4xl font-extrabold text-slate-900">1</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADMIN REPORT MANAGEMENT PANEL (Admin Only) -->
+    <section id="admin-panel" class="hidden bg-slate-900 text-white rounded-xl p-6 shadow-md">
+      <div class="flex items-center justify-between mb-4 border-b border-slate-700 pb-3">
+        <div class="flex items-center gap-2">
+          <i data-lucide="shield-check" class="text-emerald-400 w-5 h-5"></i>
+          <h2 class="text-md font-bold">Admin Management Panel</h2>
+        </div>
+        <span class="text-xs bg-slate-800 text-slate-300 px-2.5 py-1 rounded-full border border-slate-700">Logged in as Administrator</span>
+      </div>
+      
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="bg-slate-800 text-slate-400 uppercase font-semibold">
+            <tr>
+              <th class="p-3">Reporter</th>
+              <th class="p-3">Category</th>
+              <th class="p-3">Location</th>
+              <th class="p-3">Status</th>
+              <th class="p-3 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-table-body" class="divide-y divide-slate-800">
+            <!-- Dynamic rows will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- REPORT A HAZARD FORM -->
+    <section id="report-form" class="bg-white rounded-xl p-8 border border-slate-200 shadow-sm">
+      <h2 class="text-xl font-bold text-slate-900 mb-6">Report a Hazard</h2>
+
+      <form id="hazard-form" onsubmit="handleFormSubmit(event)" class="space-y-5">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Name Input -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-2">Your Name</label>
+            <input type="text" id="reporter-name" required placeholder="Enter your name" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+          </div>
+
+          <!-- Category Select -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-2">Hazard Category</label>
+            <select id="hazard-category" required class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white">
+              <option value="" disabled selected>Select category</option>
+              <option value="Road Damage / Pothole">Road Damage / Pothole</option>
+              <option value="Flooding">Flooding</option>
+              <option value="Electrical Hazard">Electrical Hazard</option>
+              <option value="Fallen Tree / Debris">Fallen Tree / Debris</option>
+              <option value="Other Safety Concern">Other Safety Concern</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Location Input -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-2">Location</label>
+          <input type="text" id="hazard-location" required placeholder="Enter hazard location (e.g., Street name, Landmark)" class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+        </div>
+
+        <!-- Description Input -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-2">Description</label>
+          <textarea id="hazard-desc" rows="4" required placeholder="Describe the hazard in detail..." class="w-full px-3.5 py-2.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"></textarea>
+        </div>
+
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-lg text-sm shadow-sm transition">
+          Submit Report
+        </button>
+      </form>
+    </section>
+
+  </main>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // State management
+    let currentRole = 'user'; // 'user' or 'admin'
+    let notifications = [];
+    let reports = [
+      { id: 1, name: 'Initial Sample', category: 'Road Damage / Pothole', location: 'Main St.', desc: 'Sample initial report', status: 'Resolved' }
+    ];
+
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // Switch between Public User and Admin Mode
+    function switchRole(role) {
+      currentRole = role;
+      const userBtn = document.getElementById('role-user-btn');
+      const adminBtn = document.getElementById('role-admin-btn');
+      const adminNavItem = document.getElementById('admin-nav-item');
+      const adminPanel = document.getElementById('admin-panel');
+
+      if (role === 'admin') {
+        adminBtn.className = "px-3 py-1 rounded-md text-xs font-semibold bg-white text-blue-600 shadow-sm transition flex items-center gap-1";
+        userBtn.className = "px-3 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition";
+        adminNavItem.classList.remove('hidden');
+        adminPanel.classList.remove('hidden');
+      } else {
+        userBtn.className = "px-3 py-1 rounded-md text-xs font-semibold bg-white text-blue-600 shadow-sm transition";
+        adminBtn.className = "px-3 py-1 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition flex items-center gap-1";
+        adminNavItem.classList.add('hidden');
+        adminPanel.classList.add('hidden');
+        document.getElementById('notif-dropdown').classList.add('hidden');
+      }
+      renderAdminTable();
+    }
+
+    // Handle Hazard Form Submission
+    function handleFormSubmit(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('reporter-name').value;
+      const category = document.getElementById('hazard-category').value;
+      const location = document.getElementById('hazard-location').value;
+      const desc = document.getElementById('hazard-desc').value;
+
+      const newReport = {
+        id: Date.now(),
+        name,
+        category,
+        location,
+        desc,
+        status: 'Pending'
+      };
+
+      // Add to data state
+      reports.push(newReport);
+
+      // Create admin notification
+      const newNotif = {
+        id: Date.now(),
+        message: `New report submitted by ${name} (${category})`,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        read: false
+      };
+      notifications.unshift(newNotif);
+
+      // Reset Form
+      document.getElementById('hazard-form').reset();
+
+      // Refresh UI
+      updateStats();
+      renderNotifications();
+      renderAdminTable();
+
+      alert('Hazard report submitted successfully!');
+    }
+
+    // Update Dashboard Numbers
+    function updateStats() {
+      const total = reports.length;
+      const pending = reports.filter(r => r.status === 'Pending').length;
+      const resolved = reports.filter(r => r.status === 'Resolved').length;
+
+      document.getElementById('stat-total').innerText = total;
+      document.getElementById('stat-pending').innerText = pending;
+      document.getElementById('stat-resolved').innerText = resolved;
+    }
+
+    // Toggle Notifications Dropdown
+    function toggleNotifications() {
+      const dropdown = document.getElementById('notif-dropdown');
+      dropdown.classList.toggle('hidden');
+
+      // Mark all as read when opening dropdown
+      if (!dropdown.classList.contains('hidden')) {
+        notifications.forEach(n => n.read = true);
+        renderNotifications();
+      }
+    }
+
+    // Render Notifications Dropdown
+    function renderNotifications() {
+      const badge = document.getElementById('notif-badge');
+      const list = document.getElementById('notif-list');
+      const unreadCount = notifications.filter(n => !n.read).length;
+
+      // Update badge counter
+      if (unreadCount > 0) {
+        badge.innerText = unreadCount;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+
+      // Render items
+      if (notifications.length === 0) {
+        list.innerHTML = `<p class="p-4 text-xs text-slate-400 text-center">No new notifications</p>`;
+        return;
+      }
+
+      list.innerHTML = notifications.map(n => `
+        <div class="p-3 text-xs hover:bg-slate-50 transition ${!n.read ? 'bg-blue-50/50' : ''}">
+          <p class="font-medium text-slate-800 mb-1">${n.message}</p>
+          <span class="text-[10px] text-slate-400">${n.time}</span>
+        </div>
+      `).join('');
+    }
+
+    // Clear all notifications
+    function clearNotifications() {
+      notifications = [];
+      renderNotifications();
+    }
+
+    // Render Admin Management Table
+    function renderAdminTable() {
+      const tbody = document.getElementById('admin-table-body');
+      if (reports.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">No reports submitted yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = reports.map(r => `
+        <tr class="hover:bg-slate-800/50">
+          <td class="p-3 font-medium text-white">${r.name}</td>
+          <td class="p-3">${r.category}</td>
+          <td class="p-3">${r.location}</td>
+          <td class="p-3">
+            <span class="px-2 py-0.5 text-[10px] rounded-full font-semibold ${
+              r.status === 'Resolved' ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-700' : 'bg-amber-900/60 text-amber-300 border border-amber-700'
+            }">
+              ${r.status}
+            </span>
+          </td>
+          <td class="p-3 text-right space-x-2">
+            ${r.status === 'Pending' ? `
+              <button onclick="resolveReport(${r.id})" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2 py-1 rounded text-[10px] font-medium transition">
+                Mark Resolved
+              </button>
+            ` : ''}
+            <button onclick="deleteReport(${r.id})" class="bg-red-600/80 hover:bg-red-500 text-white px-2 py-1 rounded text-[10px] font-medium transition">
+              Delete
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Mark Report as Resolved
+    function resolveReport(id) {
+      const report = reports.find(r => r.id === id);
+      if (report) {
+        report.status = 'Resolved';
+        updateStats();
+        renderAdminTable();
+      }
+    }
+
+    // Delete Report
+    function deleteReport(id) {
+      reports = reports.filter(r => r.id === id);
+      updateStats();
+      renderAdminTable();
+    }
+
+    // Initial load
+    updateStats();
+  </script>
+</body>
+</html>
