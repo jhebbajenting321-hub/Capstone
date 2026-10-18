@@ -6,14 +6,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const statPending = document.getElementById("stat-pending");
     const statResolved = document.getElementById("stat-resolved");
 
-    // Load initial reports from LocalStorage or empty array
+  
     let reports = JSON.parse(localStorage.getItem("cityalert_reports")) || [];
 
-    // Render reports and update stats on page load
     renderReports();
     updateDashboard();
 
-    // Handle form submission
+
     form.addEventListener("submit", (e) => {
         e.preventDefault();
 
@@ -39,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
         form.reset();
     });
 
-    // Toggle status between Pending and Resolved
+   
     window.toggleStatus = (id) => {
         reports = reports.map(report => {
             if (report.id === id) {
@@ -101,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Helper to prevent XSS injection
+
     function escapeHtml(str) {
         return str.replace(/[&<>"']/g, (match) => {
             const map = {
