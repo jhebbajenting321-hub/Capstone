@@ -1,4 +1,4 @@
-/* Base Reset & Variables */
+
 * {
     box-sizing: border-box;
     margin: 0;
@@ -28,7 +28,7 @@ body {
     min-height: 100vh;
 }
 
-/* Header / Navbar */
+
 header {
     background-color: var(--card-bg);
     border-bottom: 1px solid var(--border);
@@ -72,7 +72,7 @@ header {
     color: var(--accent);
 }
 
-/* Main Container */
+
 main {
     max-width: 1100px;
     margin: 2rem auto;
@@ -81,7 +81,7 @@ main {
     width: 100%;
 }
 
-/* Hero Banner */
+
 .hero {
     background-color: var(--card-bg);
     border: 1px solid var(--border);
@@ -121,7 +121,7 @@ main {
     background-color: var(--accent-hover);
 }
 
-/* Section Titles */
+
 .section-title {
     font-size: 1.35rem;
     font-weight: 700;
@@ -129,7 +129,7 @@ main {
     margin-bottom: 1rem;
 }
 
-/* Dashboard Stats Grid */
+
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -159,7 +159,7 @@ main {
     color: var(--primary);
 }
 
-/* Form Card Layout */
+
 .form-card {
     background-color: var(--card-bg);
     border: 1px solid var(--border);
@@ -221,7 +221,7 @@ textarea {
     margin-top: 1.25rem;
 }
 
-/* Submitted Reports List */
+
 .reports-container {
     display: flex;
     flex-direction: column;
@@ -294,7 +294,7 @@ textarea {
     font-style: italic;
 }
 
-/* Footer */
+
 footer {
     background-color: var(--card-bg);
     border-top: 1px solid var(--border);
@@ -305,7 +305,7 @@ footer {
     margin-top: auto;
 }
 
-/* Responsive Layout */
+
 @media (max-width: 768px) {
     .form-grid {
         grid-template-columns: 1fr;
